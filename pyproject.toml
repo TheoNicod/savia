@@ -1,0 +1,101 @@
+[project]
+name = "savia"
+version = "0.1.0"
+description = "Autonomous multi-agent customer support system (training project)."
+readme = "README.md"
+requires-python = ">=3.14"
+license = { text = "MIT" }
+dependencies = [
+    "langchain>=1.4.3,<2.0",
+    "langgraph>=1.2.14,<2.0",
+    "langsmith>=0.14.4",
+    "langchain-chroma>=1.1.0",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
+]
+
+[project.optional-dependencies]
+openai = ["langchain-openai>=1.6.7"]
+anthropic = ["langchain-anthropic>=1.7.5"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9",
+    "pytest-cov>=7",
+    "pytest-asyncio>=1",
+    "mypy>=2",
+    "ruff>=0.16",
+    "pre-commit>=4.6",
+    "langgraph-cli[inmem]>=0.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# ---------------------------------------------------------------- Ruff
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",   # pycodestyle, pyflakes
+    "I",             # isort
+    "N",             # pep8-naming
+    "UP",            # pyupgrade
+    "B",             # bugbear
+    "S",             # bandit (sécurité)
+    "SIM", "RET",    # simplifications
+    "ANN",           # annotations obligatoires
+    "D",             # docstrings
+    "PT",            # style pytest
+    "ARG",           # arguments inutilisés
+    "RUF",
+]
+ignore = ["D105", "D107"]   # dunder/__init__ sans docstring tolérés
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "ANN", "D", "ARG"]
+"scripts/**" = ["D", "T201"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.14"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+packages = ["savia"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["chromadb.*"]
+ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "integration: tests touching real infra (DB, vector store)",
+    "llm: tests calling a real LLM API (excluded from default runs)",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+branch = true
+source = ["savia"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]

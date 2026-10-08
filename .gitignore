@@ -1,0 +1,25 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Secrets — jamais commités
+.env
+.env.*
+!.env.example
+
+# Artefacts locaux
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Données générées (reconstruites par scripts)
+.chroma/
+*.sqlite3
+.langgraph_api/

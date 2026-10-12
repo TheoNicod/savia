@@ -19,7 +19,7 @@ typecheck: ## mypy strict
 	uv run mypy
 
 test: ## Unit tests (no network, no LLM)
-	uv run pytest tests/unit -m "not llm and not integration"
+	uv run pytest tests/unit -m "not llm and not integration" -s
 
 test-integration: ## Integration tests
 	uv run pytest tests/integration -m "integration"

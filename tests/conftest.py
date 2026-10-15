@@ -12,31 +12,22 @@ SECRET_KEYS = (
 
 
 @pytest.fixture
-def clean_openai_env(monkeypatch: pytest.MonkeyPatch) -> pytest.MonkeyPatch:
-    """Start with a clean openai secrets, then add the minimal foundation."""
+def clean_env(monkeypatch: pytest.MonkeyPatch) -> pytest.MonkeyPatch:
+    """Start with a clean secrets."""
     for var in SECRET_KEYS:
         monkeypatch.delenv(var, raising=False)
     for var in os.environ:
         if var.startswith("SAVIA_"):
             monkeypatch.delenv(var, raising=False)
-    monkeypatch.setenv("SAVIA_LLM_PROVIDER", "openai")
-    monkeypatch.setenv("SAVIA_LLM_MODEL", "astral")
-    monkeypatch.setenv("OPENAI_API_KEY", "sk-test-fake")
     return monkeypatch
 
 
 @pytest.fixture
-def clean_anthropic_env(monkeypatch: pytest.MonkeyPatch) -> pytest.MonkeyPatch:
-    """Start with a clean anthropic secrets, then add the minimal foundation."""
-    for var in SECRET_KEYS:
-        monkeypatch.delenv(var, raising=False)
-    for var in os.environ:
-        if var.startswith("SAVIA_"):
-            monkeypatch.delenv(var, raising=False)
-    monkeypatch.setenv("SAVIA_LLM_PROVIDER", "anthropic")
-    monkeypatch.setenv("SAVIA_LLM_MODEL", "sonnet")
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-fake")
-    return monkeypatch
+def configure_env(clean_env: pytest.MonkeyPatch) -> pytest.MonkeyPatch:
+    clean_env.setenv("SAVIA_LLM_PROVIDER", "openai")
+    clean_env.setenv("SAVIA_LLM_MODEL", "astral")
+    clean_env.setenv("OPENAI_API_KEY", "sk-test-fake")
+    return clean_env
 
 
 @pytest.fixture(autouse=True)

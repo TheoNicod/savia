@@ -56,10 +56,9 @@ class Settings(BaseSettings):
         Raises:
             ValueError: With a message naming the missing variable, never its value.
         """
-        if self.llm_provider == "openai" and self.openai_api_key is None:
-            raise ValueError("openai_api_key is None")
-        if self.llm_provider == "anthropic" and self.anthropic_api_key is None:
-            raise ValueError("anthropic_api_key is None")
+        key_name = self.llm_provider.lower() + "_api_key"
+        if getattr(self, key_name) is None:
+            raise ValueError(f"{key_name} is None")
 
         if self.langsmith_tracing and self.langsmith_api_key is None:
             raise ValueError("langsmith_api_key is required when langsmith_tracing is true")

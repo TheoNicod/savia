@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from langchain_core.tracers import LangChainTracer
 from langsmith import Client
 
 from savia.config import Settings
@@ -39,3 +40,22 @@ def build_langsmith_client(settings: Settings) -> Client:
         hide_inputs=_redact_payload,
         hide_outputs=_redact_payload,
     )
+
+
+def build_langchain_tracer(settings: Settings, client: Client | None = None) -> LangChainTracer:
+    """Return a LangChain callback that sends runs to the configured LangSmith project.
+
+    If `client` is omitted, one is built with `build_langsmith_client` so that
+    traces always go through PII redaction before upload.
+
+    Raises:
+        ValueError: if `langsmith_project` is not configured, or if `client` is
+            omitted and `langsmith_api_key` is not configured.
+    """
+    if settings.langsmith_project is None:
+        raise ValueError("langsmith_project is required to build a LangChain tracer")
+
+    if client is None:
+        client = build_langsmith_client(settings)
+
+    return LangChainTracer(client=client, project_name=settings.langsmith_project)

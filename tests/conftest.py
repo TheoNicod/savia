@@ -2,7 +2,9 @@ import os
 from collections.abc import Callable, Iterator
 
 import pytest
+from langchain.messages import AIMessage
 
+from fakes import FakeToolCallingChatModel
 from savia.config import LLMProvider, Settings, get_settings
 
 _PROVIDER_KEYS = (
@@ -16,6 +18,10 @@ PROVIDER_PACKAGES: dict[LLMProvider, str] = {
     "openai": "langchain_openai",
     "anthropic": "langchain_anthropic",
 }
+
+################################
+# Settings
+################################
 
 
 @pytest.fixture(autouse=True)
@@ -48,3 +54,16 @@ def _clear_cache_settings() -> Iterator[None]:
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+################################
+# Fakes
+################################
+
+
+@pytest.fixture
+def fake_model_factory():
+    def _factory(messages: Iterator[AIMessage]):
+        return FakeToolCallingChatModel(messages=messages)
+
+    return _factory

@@ -352,7 +352,6 @@ MASKED = EMAIL
 
 
 def test_string_is_redacted():
-    print(redact_value(f"mail: {TEST_EMAIL}"))
     assert redact_value(f"mail: {TEST_EMAIL}") == f"mail: {MASKED}"
 
 

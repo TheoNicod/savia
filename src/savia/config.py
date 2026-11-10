@@ -44,6 +44,8 @@ class Settings(BaseSettings):
     langsmith_api_key: SecretStr | None = Field(default=None, validation_alias="LANGSMITH_API_KEY")
     langsmith_project: str = Field(default="savia-dev", validation_alias="LANGSMITH_PROJECT")
 
+    embeddings_model: str = Field(validation_alias="SAVIA_EMBEDDINGS_MODEL")
+
     @model_validator(mode="after")
     def _check_required_secrets(self) -> Settings:
         """Fail fast when a secret required by the current configuration is missing.

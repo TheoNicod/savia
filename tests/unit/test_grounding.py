@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from unittest.mock import MagicMock
 
 import pytest
 from langchain.messages import AIMessage
@@ -16,6 +17,9 @@ from savia.rag.grounding import (
     validate_grounding,
 )
 from savia.rag.models import Chunk, RetrievedChunk
+
+fake_tracer = MagicMock()
+
 
 ################################
 # Helpers
@@ -239,7 +243,7 @@ def test_empty_retrieval_refuses_without_calling_the_model(fake_model_factory):
     """An empty script proves it: any model call would raise."""
     model = fake_model_factory(messages=iter([]))
 
-    answer = answer_from_corpus("Quel est le délai de remboursement ?", [], model)
+    answer = answer_from_corpus("Quel est le délai de remboursement ?", [], model, fake_tracer)
 
     _assert_is_refusal(answer)
 
@@ -251,7 +255,9 @@ def test_grounded_model_answer_is_returned(fake_model_factory, retrieved):
     )
     model = fake_model_factory(messages=iter([_structured_reply(expected)]))
 
-    answer = answer_from_corpus("Quel est le délai de remboursement ?", retrieved, model)
+    answer = answer_from_corpus(
+        "Quel est le délai de remboursement ?", retrieved, model, fake_tracer
+    )
 
     assert answer == expected
 
@@ -264,7 +270,9 @@ def test_ungrounded_model_answer_becomes_a_logged_refusal(fake_model_factory, re
     model = fake_model_factory(messages=iter([_structured_reply(hallucinated)]))
 
     with caplog.at_level(logging.WARNING):
-        answer = answer_from_corpus("Quel est le délai de remboursement ?", retrieved, model)
+        answer = answer_from_corpus(
+            "Quel est le délai de remboursement ?", retrieved, model, fake_tracer
+        )
 
     _assert_is_refusal(answer)
     assert _INVENTED_ID not in answer.answer  # the error never reaches the customer
@@ -276,6 +284,6 @@ def test_model_refusal_is_returned_as_refusal(fake_model_factory, retrieved):
         messages=iter([_structured_reply(_answer(answerable=False, text=""))])
     )
 
-    answer = answer_from_corpus("Quelle est la couleur du logo ?", retrieved, model)
+    answer = answer_from_corpus("Quelle est la couleur du logo ?", retrieved, model, fake_tracer)
 
     _assert_is_refusal(answer)

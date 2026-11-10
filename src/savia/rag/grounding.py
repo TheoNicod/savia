@@ -6,6 +6,7 @@ import logging
 import re
 
 from langchain_core.language_models import BaseChatModel
+from langchain_core.tracers import LangChainTracer
 from pydantic import BaseModel, Field
 
 from savia.rag.models import RetrievedChunk
@@ -136,9 +137,7 @@ def _refusal() -> GroundedAnswer:
 
 
 def answer_from_corpus(
-    question: str,
-    retrieved: list[RetrievedChunk],
-    model: BaseChatModel,
+    question: str, retrieved: list[RetrievedChunk], model: BaseChatModel, tracer: LangChainTracer
 ) -> GroundedAnswer:
     """Generate a grounded answer, or a refusal when context is missing or invalid.
 
@@ -149,7 +148,9 @@ def answer_from_corpus(
         return _refusal()
 
     chain = RAG_PROMPT | model.with_structured_output(GroundedAnswer)
-    answer = chain.invoke({"context": format_context(retrieved), "question": question})
+    answer = chain.invoke(
+        {"context": format_context(retrieved), "question": question}, config={"callbacks": [tracer]}
+    )
     if not isinstance(answer, GroundedAnswer):
         logger.warning("Unexpected structured output type: %s", type(answer).__name__)
         return _refusal()

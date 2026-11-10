@@ -31,7 +31,7 @@ check: lint typecheck cov ## Everything CI runs
 
 # Cibles complétées dans les phases suivantes
 ingest: ## (Phase 2) Build vector index
-	@echo "TODO(exercice)"
+	uv run scripts/ingest.py
 seed: ## (Phase 3) Seed fake DB
 	@echo "TODO(exercice)"
 dev: ## (Phase 8) Run local LangGraph server

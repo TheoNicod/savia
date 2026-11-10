@@ -42,11 +42,8 @@ def build_langsmith_client(settings: Settings) -> Client:
     )
 
 
-def build_langchain_tracer(settings: Settings, client: Client | None = None) -> LangChainTracer:
+def build_langchain_tracer(settings: Settings, client: Client) -> LangChainTracer:
     """Return a LangChain callback that sends runs to the configured LangSmith project.
-
-    If `client` is omitted, one is built with `build_langsmith_client` so that
-    traces always go through PII redaction before upload.
 
     Raises:
         ValueError: if `langsmith_project` is not configured, or if `client` is
@@ -54,8 +51,5 @@ def build_langchain_tracer(settings: Settings, client: Client | None = None) -> 
     """
     if settings.langsmith_project is None:
         raise ValueError("langsmith_project is required to build a LangChain tracer")
-
-    if client is None:
-        client = build_langsmith_client(settings)
 
     return LangChainTracer(client=client, project_name=settings.langsmith_project)

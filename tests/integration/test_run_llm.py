@@ -2,7 +2,7 @@ import pytest
 
 from savia.config import get_settings
 from savia.llm.factory import build_chat_model
-from savia.observability.tracing import build_langchain_tracer
+from savia.observability.tracing import build_langchain_tracer, build_langsmith_client
 
 FAKE_EMAIL = "jean.dupont@example.com"
 FAKE_PHONE_NUMBER = "06 05 04 03 02"
@@ -12,7 +12,7 @@ FAKE_PHONE_NUMBER = "06 05 04 03 02"
 @pytest.mark.llm
 def test_run_llm_default():
     settings = get_settings()
-    tracer = build_langchain_tracer(settings)
+    tracer = build_langchain_tracer(settings, build_langsmith_client(settings))
     agent = build_chat_model(settings)
 
     content = agent.invoke(

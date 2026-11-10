@@ -23,3 +23,7 @@ htmlcov/
 .chroma/
 *.sqlite3
 .langgraph_api/
+data/index/
+
+# autre
+MYREADME.md

@@ -10,7 +10,9 @@ from __future__ import annotations
 from typing import Literal
 
 from langchain.chat_models import init_chat_model
+from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel
+from langchain_openai import OpenAIEmbeddings
 
 from savia.config import Settings
 
@@ -41,4 +43,22 @@ def build_chat_model(settings: Settings, *, purpose: ModelPurpose = "agent") -> 
         timeout=settings.llm_timeout_s,
         max_retries=settings.llm_max_retries,
         api_key=secret.get_secret_value(),
+    )
+
+
+def build_embeddings(settings: Settings) -> Embeddings:
+    """Build an embeddings model configured from settings.
+
+    Only OpenAI embeddings are supported for now, regardless of `llm_provider`.
+
+    Args:
+        settings: Validated application settings.
+
+    Returns:
+        An embeddings model using `settings.embeddings_model`.
+    """
+    if settings.openai_api_key is None:
+        raise ValueError("OPENAI_API_KEY is required to build embeddings")
+    return OpenAIEmbeddings(  # only openai model for now
+        model=settings.embeddings_model, openai_api_key=settings.openai_api_key
     )

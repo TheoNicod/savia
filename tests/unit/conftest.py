@@ -40,6 +40,7 @@ def make_settings(clean_env: pytest.MonkeyPatch) -> Callable[[LLMProvider], Sett
     def _make(provider: LLMProvider):
         clean_env.setenv("SAVIA_LLM_PROVIDER", provider)
         clean_env.setenv("SAVIA_LLM_MODEL", "test-model")
+        clean_env.setenv("SAVIA_EMBEDDINGS_MODEL", "test-embeddings-model")
         clean_env.setenv(provider.upper() + "_API_KEY", "fake-test-key")
         return Settings(_env_file=None)
 
